@@ -1,11 +1,15 @@
 package ufpb.clinica.crm.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
 
 import ufpb.clinica.crm.entities.enums.Status;
 
@@ -24,15 +28,19 @@ public class Cliente implements Serializable{
 	private String endereco;
 	private String dataNascimento;
 	private String profissao;
+	private Double valorTotal = 0.0;
 	
 	private Status status;
+	
+	@OneToMany(mappedBy = "cliente")
+	private List<Consulta> consultas = new ArrayList<>();
 	
 	public Cliente() {
 		
 	}
 
 	public Cliente(String nome, String email, String celular, String endereco, String dataNascimento,
-			String profissao, Status status) {
+			String profissao, Double valorTotal, Status status) {
 		super();
 		this.nome = nome;
 		this.email = email;
@@ -40,6 +48,7 @@ public class Cliente implements Serializable{
 		this.endereco = endereco;
 		this.dataNascimento = dataNascimento;
 		this.profissao = profissao;
+		this.valorTotal = valorTotal;
 		this.setStatus(status);
 	}
 
@@ -98,6 +107,14 @@ public class Cliente implements Serializable{
 	public void setProfissao(String profissao) {
 		this.profissao = profissao;
 	}
+	
+	public Double getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(Double valorTotal) {
+		this.valorTotal = valorTotal;
+	}
 
 	public Status getStatus() {
 		return status;
@@ -107,6 +124,10 @@ public class Cliente implements Serializable{
 		this.status = status;
 	}
 	
+	
+	public List<Consulta> getConsultas(){
+		return consultas;
+	}
 	
 	
 	
