@@ -1,0 +1,54 @@
+name: Build and Publish Docker Image
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build with Maven
+        run: mvn clean package -Dmaven.test.skip=true
+      - name: Build image
+        run: docker build -t clinica .
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 600
+      - name: Tag image
+        run: docker tag clinica registry.digitalocean.com/clinica/clinica:latest
+      - name: Push image to DO Container Registry
+        run: docker push registry.digitalocean.com/clinica/clinica:latest
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: |
+            # Login in registry
+            docker login  registry.digitalocean.com/clinica -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+            
+            # Update image
+            docker pull registry.digitalocean.com/clinica/clinica:latest
+            
+            #Stop database
+            docker stop db
+            
+            docker stop app
+            
+            docker network rm app-net
+            
+            docker network create app-net
+            
+            #Run database
+            docker run -d --rm --net app-net  -e POSTGRES_USER=${{ secrets.DB_USERNAME }} -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} -e POSTGRES_DB=clinicadb --name db postgres:13.1-alpine          
+            
+            #Start application
+            docker run --rm --net app-net -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/clinicadb -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }} -e SPRING_JPA_HIBERNATE_DDL_AUTO=update --name app -d registry.digitalocean.com/clinica/clinica:latest
