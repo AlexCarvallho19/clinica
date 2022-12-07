@@ -17,7 +17,7 @@ import ufpb.clinica.crm.services.ConsultaService;
 @RestController
 public class ConsultaController {
 	
-	@Autowired
+
 	private ConsultaService consultaService;
 	
 	@PostMapping("/consulta/agenda/consulta/{id}")
