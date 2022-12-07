@@ -17,3 +17,11 @@ Estágio 4: AGENDAS REALIZADAS
 Estágio 5: ORÇAMENTO REALIZADOS
 
 Estágio 6. ORÇAMENTOS FECHADOS
+
+
+## Modelo Entidade Relacionamento
+![image](https://user-images.githubusercontent.com/51705102/204939578-eb9fb808-c095-4e80-9b86-0f1cf6d8056b.png)
+
+
+![image](https://user-images.githubusercontent.com/49384769/204937637-bd8de936-47a7-485d-8b45-96775c59aadf.png)
+
